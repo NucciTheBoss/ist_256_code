@@ -13,7 +13,7 @@
 <?php
     // Convert array into list and print out results
     list($x, $y) = array("Alice", "Bob");
-    echo "x=$x b=$y";
+    echo "x=$x y=$y";
 ?>  
 </body>
 </html>
