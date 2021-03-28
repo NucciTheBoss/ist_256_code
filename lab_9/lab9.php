@@ -4,139 +4,521 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Group 1 Lab 09</title>
+    <title>Group 1 - Lab 09 Execution</title>
+    <link href="favicon.ico" rel="icon" type="image/x-icon">
+    <?php require_once "control\\login.php";?>
+
+    <!-- Import Bootstrap framework for CSS styling -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </head>
 <body>
-    <!-- Tables: Student, Courses, College -->
-    <!-- Student Columns: StudentID, Name, Email, College -->
-    <!-- Courses: CourseID, CourseName, Instructor, College -->
-    <!-- College: CollegeName, Building -->
     <?php
+        // Embeded PHP for working with the database
+        // Connect to MySQL instance
         $conn = new mysqli($hostname, $username, $password, $database);
-        if ($conn->connect_error) die("Fatal Error");
-
-        $studentID = $_POST['stuID'];
-        $studentName = $_POST['stuName'];
-        $studentEmail = $_POST['stuEmail'];
-        $studentCollege = $_POST['stuCollege'];
-        if(!empty($_POST['name'])) { //if they filled out all the fields
-            //add it into the table
-            $addQuery = "INSERT INTO players(stuID, stuName, stuEmail, stuCollege) VALUES" .
-                "('$studentID', '$studentName', '$studentEmail', '$studentCollege')";
-            $addResult = $conn->query($addQuery);
-            if(!$addResult) die("Fatal Error on INSERT");
-        }
         
-        $dataFromStudentTable = 'SELECT * FROM student';
-        $result = $conn->query($dataFromStudentTable);
-
-        $rows = $result->num_rows;
-
-        echo "<table>";
-        echo "<tr> <th> Student ID </th> <th> Name </th> <th> Email </th> <th> College </th> </tr>";
-        for($i = 0; $i < $rows; $i++) {
-            // using associative array
-            $fullRow = $result->fetch_array(MYSQLI_ASSOC);
-            echo "<tr>";
-            echo '<td>' . $fullRow['stuID'] . '</td>';
-            echo '<td>' . $fullRow['stuName'] . '</td>';
-            echo '<td>' . $fullRow['stuEmail'] . '</td>';
-            echo '<td>' . $fullRow['stuCollege'] . '</td>';
-            echo "</tr>";
+        // Verify that connection to instance was successful
+        if ($conn->connect_error) {
+            die("A Fatal Error Occurred");
         }
-        echo "</table>";
-        
-        echo <<<_END
-        // creates a button that allows user to input values & sends the data to the server
-        <form action='lab9.php' method ='post'><pre>
-        Student ID <input type="text" name="stuID">
-        Student Name <input type="text" name="stuName">
-        Student Email <input type="text" name="email">
-        Student College <input type="text" name="college">
-        <input type="submit" value="ADD RECORD"
-        </pre></form>
-        _END;
 
-        $courseID = $_POST['courseID'];
-        $courseName = $_POST['courseName'];
-        $instructor = $_POST['instructor'];
-        $college = $_POST['college'];
-        if(!empty($_POST['courseID'])) { //if they filled out all the fields
-            //add it into the table
-            $addQuery = "INSERT INTO players(courseID, courseName, instructor, college) VALUES" .
-                "('$courseID', '$courseName', '$instructor', '$college')";
-            $addResult = $conn->query($addQuery);
-            if(!$addResult) die("Fatal Error on INSERT");
+        // Inserting a college into the database
+        if (!empty($_POST['CollegeName']) && 
+            !empty($_POST['Building'])) {
+                // Set variables
+                $CollegeName = get_post($conn, 'CollegeName');
+                $Building = get_post($conn, 'Building');
+
+                // Write and execute query
+                $sql = "INSERT INTO COLLEGE (CollegeName, Building) VALUES ('$CollegeName', '$Building')";
+                $result = $conn->query($sql);
+                
+                // Check if insert was successful
+                if (!$result) {
+                    echo "Uh oh. INSERT transaction failed!";
+                } else {
+                    echo "Insert was successful";
+                }
+            }
+
+        // Insert a student into the database
+        if (!empty($_POST['Name']) &&
+            !empty($_POST['Email']) &&
+            !empty($_POST['College'])) {
+                // Set student variables
+                $Name = get_post($conn, 'Name');
+                $Email = get_post($conn, 'Email');
+                $College = get_post($conn, 'College');
+
+                // Write and execute query
+                $sql = "INSERT INTO STUDENT (Name, Email, College) VALUES ('$Name', '$Email', '$College')";
+                $result = $conn->query($sql);
+
+                // Check if insert was successful
+                if (!$result) {
+                    echo "Uh oh. INSERT transaction failed!";
+                } else {
+                    echo "Insert was successful";
+                }
+            }
+
+        // Insert a course into the database
+        if (!empty($_POST['CourseName']) &&
+            !empty($_POST['Instructor']) &&
+            !empty($_POST['College'])) {
+                // Set course variables
+                $CourseName = get_post($conn, 'CourseName');
+                $Instructor = get_post($conn, 'Instructor');
+                $College = get_post($conn, 'College');
+
+                // Write and execute query
+                $sql = "INSERT INTO COURSES (CourseName, Instruction, College) VALUES ('$CourseName', '$Instructor', '$College')";
+                $result = $conn->query($sql);
+                
+                // Check if insert was successful
+                if (!$result) {
+                    echo "Uh oh. INSERT transaction failed!";
+                } else {
+                    echo "Insert was successful";
+                }
+            }
+
+        // Update a college in the database
+        if (isset($_POST['update']) &&
+            !empty($_POST['OldCollegeName']) &&
+            !empty($_POST['NewCollegeName']) &&
+            !empty($_POST['OldBuildingName']) &&
+            !empty($_POST['NewBuildingName'])) {
+                // Set variables
+                $OldCollegeName = get_post($conn, 'OldCollegeName');
+                $NewCollegeName = get_post($conn, 'NewCollegeName');
+                $OldBuildingName = get_post($conn, 'OldBuildingName');
+                $NewBuildingName = get_post($conn, 'NewBuildingName');
+
+                // Write and execute query
+                $sql = "UPDATE COLLEGE SET CollegeName='$NewCollegeName', Building='$NewBuildingName' WHERE CollegeName='$OldCollegeName' AND Building='$OldBuildingName'";
+                $result = $conn->query($sql);
+
+                // Verify that update was successful
+                if (!$result) {
+                    echo "Uh oh. Update transaction failed!";
+                } else {
+                    echo "Update was successful";
+                }
+            }
+
+        // Update a student in the database
+        if (isset($_POST['update']) &&
+            !empty($_POST['StudentID']) &&
+            !empty($_POST['NewName']) &&
+            !empty($_POST['NewEmail']) &&
+            !empty($_POST['NewCollege'])) {
+                // Set variables
+                $StudentID = get_post($conn, 'StudentID');
+                $StudentIDInt = intval($StudentID);
+                $NewName = get_post($conn, 'NewName');
+                $NewEmail = get_post($conn, 'NewEmail');
+                $NewCollege = get_post($conn, 'NewCollege');
+
+                // Write and execute query
+                $sql = "UPDATE STUDENT SET Name='$NewName', Email='$NewEmail', College='$NewCollege' WHERE StudentID=$StudentIDInt";
+                $result = $conn->query($sql);
+
+                // Verify that update was successful
+                if (!$result) {
+                    echo "Uh oh. Update transaction failed!";
+                } else {
+                    echo "Update was successful";
+                }
+            }
+
+        // Update a course in the database
+        if (isset($_POST['update']) &&
+            !empty($_POST['CourseID']) &&
+            !empty($_POST['NewCourseName']) &&
+            !empty($_POST['NewInstructor']) &&
+            !empty($_POST['NewCollege'])) {
+                // Set variables
+                $CouseID = get_post($conn, 'CourseID');
+                $CouseIDInt = intval($CourseID);
+                $NewCourseName = get_post($conn, 'NewCourseName');
+                $NewInstructor = get_post($conn, 'NewInstructor');
+                $NewCollege = get_post($conn, 'NewCollege');
+
+                // Write and execute query
+                $sql = "UPDATE COURSES SET CourseName='$NewCourseName', Instructor='$NewInstructor', College='$NewCollege' WHERE CourseID=$CourseIDInt";
+                $result = $conn->query($sql);
+
+                // Verify that update was successful
+                if (!$result) {
+                    echo "Uh oh. Update transaction failed!";
+                } else {
+                    echo "Update was successful";
+                }
+            }
+
+        // Delete a college from the database
+        if (isset($_POST['delete']) && isset($_POST['CollegeName'])) {
+            // Set variable
+            $CollegeName = get_post($conn, 'CollegeName');
+
+            // Write and execute query
+            $sql = "DELETE FROM COLLEGE WHERE CollegeName='$CollegeName'";
+            $result = $conn->query($sql);
+
+            // Check if deletion was successful
+            if (!$result) {
+                echo "Uh oh. DELETE transaction failed!";
+            } else {
+                echo "Deletion was successful";
+            }
         }
-        
-        $dataFromCourseTable = 'SELECT * FROM course';
-        $result = $conn->query($dataFromCourseTable);
 
-        $rows = $result->num_rows;
+        // Delete a student from the database
+        if (isset($_POST['delete']) && isset($_POST['StudentID'])) {
+            // Set variable
+            $StudentID = get_post($conn, 'StudentID');
+            $StudentIDInt = intval($StudentID);
 
-        echo "<table>";
-        echo "<tr> <th> Course ID </th> <th> Course Name </th> <th> Instructor </th> <th> College </th> </tr>";
-        for($i = 0; $i < $rows; $i++) {
-            // using associative array
-            $fullRow = $result->fetch_array(MYSQLI_ASSOC);
-            echo "<tr>";
-            echo '<td>' . $fullRow['courseID'] . '</td>';
-            echo '<td>' . $fullRow['courseName'] . '</td>';
-            echo '<td>' . $fullRow['instructor'] . '</td>';
-            echo '<td>' . $fullRow['college'] . '</td>';
-            echo "</tr>";
+            // Write and execute query
+            $sql = "DELETE FROM STUDENT WHERE StudentID=$StudentIDInt";
+            $result = $conn->query($sql);
+
+            // Check if deletion was successful
+            if (!$result) {
+                echo "Uh oh. DELETE transaction failed!";
+            } else {
+                echo "Deletion was successful";
+            }
+
         }
-        echo "</table>";
 
-        echo <<<_END
-        // creates a button that allows user to input values & sends the data to the server
-        <form action='lab9.php' method ='post'><pre>
-        Course ID <input type="text" name="courseID">
-        Course Name <input type="text" name="courseName">
-        Instructor <input type="text" name="instructor">
-        College <input type="text" name="college">
-        <input type="submit" value="ADD RECORD"
-        </pre></form>
-        _END;
+        if (isset($_POST['delete']) && isset($_POST['CourseID'])) {
+            $CourseID = get_post($conn, 'CourseID');
+            $CourseIDInt = intval($CourseID);
 
-
-        $collegeName = $_POST['collegeName'];
-        $building = $_POST['building'];
-
-        if(!empty($_POST['name'])) { //if they filled out all the fields
-            //add it into the table
-            $addQuery = "INSERT INTO players(collegeName, building) VALUES" .
-                "('$collegeName', '$building')";
-            $addResult = $conn->query($addQuery);
-            if(!$addResult) die("Fatal Error on INSERT");
+            $sql = "DELETE FROM COURSES WHERE CourseID=$CourseIDInt";
         }
-        
-        $dataFromCollegeTable = 'SELECT * FROM college';
-        $result = $conn->query($dataFromCollegeTable);
 
-        $rows = $result->num_rows;
+        // Close the connection to the database
+        $conn->close();
 
-        echo "<table>";
-        echo "<tr> <th> College Name </th> <th> Building </th> </tr>";
-        for($i = 0; $i < $rows; $i++) {
-            // using associative array
-            $fullRow = $result->fetch_array(MYSQLI_ASSOC);
-            echo "<tr>";
-            echo '<td>' . $fullRow['collegeName'] . '</td>';
-            echo '<td>' . $fullRow['building'] . '</td>';
-            echo "</tr>";
+        // Define function to help format MySQL query inputs
+        function get_post($conn, $var) {
+            return $conn->real_escape_string($_POST[$var]);
         }
-        echo "</table>";
-
-        echo <<<_END
-        // creates a button that allows user to input values & sends the data to the server
-        <form action='lab9.php' method ='post'><pre>
-        College <input type="text" name="college">
-        Building <input type="text" name="building">
-        <input type="submit" value="ADD RECORD"
-        </pre></form>
-        _END;
-
     ?>
+
+    <!-- Define layout -->
+    <div class="container-fluid">
+        <!-- Row to display the tables in database -->
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="container p-3 my-3 border shadow-sm">
+                    <!-- College table -->
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>College Name</th>
+                                <th>Building</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php 
+                                // Connect to the database
+                                $conn = new mysqli($hostname, $username, $password, $database);
+
+                                // Verify that connection to instance was successful
+                                if ($conn->connect_error) {
+                                    die("A Fatal Error Occurred");
+                                }
+
+                                // Write and execute SELECT query
+                                $sql = "SELECT CollegeName, Building FROM COLLEGE";
+                                $result = $conn->query($sql);
+
+                                // Run through the results in the table
+                                if ($result->num_rows > 0) {
+                                    while($row = $result->fetch_assoc()) {
+                                        echo "<tr>";
+                                        echo "<td>" . $row["CollegeName"] . "</td>";
+                                        echo "<td>" . $row["Building"] . "</td>";
+                                        echo "</tr>";
+                                    }
+                                }
+
+                                // Close connection once done pulling data
+                                $conn->close()
+                            ?>
+                        </tbody>
+                    </table>
+                </div>                
+            </div>
+
+            <div class="col-sm-4">
+                <div class="container p-3 my-3 border shadow-sm">
+                    <!-- Student table -->
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Student ID #</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>College</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                                <?php 
+                                    // Connect to the database
+                                    $conn = new mysqli($hostname, $username, $password, $database);
+
+                                    // Verify that connection to instance was successful
+                                    if ($conn->connect_error) {
+                                        die("A Fatal Error Occurred");
+                                    }
+
+                                    // Write and execute SELECT query
+                                    $sql = "SELECT StudentID, Name, Email, College FROM STUDENT";
+                                    $result = $conn->query($sql);
+
+                                    // Run through the results in the table
+                                    if ($result->num_rows > 0) {
+                                        while($row = $result->fetch_assoc()) {
+                                            echo "<tr>";
+                                            echo "<td>" . $row["StudentID"] . "</td>";
+                                            echo "<td>" . $row["Name"] . "</td>";
+                                            echo "<td>" . $row["Email"] . "</td>";
+                                            echo "<td>" . $row["College"] . "</td>";
+                                            echo "</tr>";
+                                        }
+                                    }
+
+                                    // Close connection once done pulling data
+                                    $conn->close()
+                                ?>
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="col-sm-4">
+                <div class="container p-3 my-3 border shadow-sm">
+                    <!-- Course table -->
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Course ID #</th>
+                                <th>Course Name</th>
+                                <th>Instructor</th>
+                                <th>College</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php 
+                                // Connect to the database
+                                $conn = new mysqli($hostname, $username, $password, $database);
+
+                                // Verify that connection to instance was successful
+                                if ($conn->connect_error) {
+                                    die("A Fatal Error Occurred");
+                                }
+
+                                // Write and execute SELECT query
+                                $sql = "SELECT CourseID, CourseName, Instructor, College FROM COURSES";
+                                $result = $conn->query($sql);
+
+                                // Run through the results in the table
+                                if ($result->num_rows > 0) {
+                                    while($row = $result->fetch_assoc()) {
+                                        echo "<tr>";
+                                        echo "<td>" . $row["CourseID"] . "</td>";
+                                        echo "<td>" . $row["CourseName"] . "</td>";
+                                        echo "<td>" . $row["Instructor"] . "</td>";
+                                        echo "<td>" . $row["College"] . "</td>";
+                                        echo "</tr>";
+                                    }
+                                }
+
+                                // Close connection once done pulling data
+                                $conn->close()
+                            ?>
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <!-- College table column -->
+            <div class="col-sm-4">
+                <div class="container p-3 my-3 border shadow-sm">
+                    <!-- Add new college -->
+                    <form action="lab9.php" method="post">
+                        <div class="form-group">
+                            <label for="new-college">New College's Name:</label>
+                            <input type="text" class="form-control" placeholder="Enter new college's name" id="new-college" name="CollegeName">
+                        </div>
+                        <div class="form-group">
+                            <label for="new-building">Building:</label>
+                            <input type="text" class="form-control" placeholder="Enter building name" id="new-building" name="Building">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </form>
+                </div>
+
+                <div class="container p-3 my-3 border shadow-sm">
+                    <!-- Update college currently stored in the database -->
+                    <form action="lab9.php" method="post">
+                        <div class="form-group">
+                            <label for="old-college-name">College's Old Name:</label>
+                            <input type="text" class="form-control" placeholder="Enter college's old name" id="old-college-name" name="OldCollegeName">
+                        </div>
+                        <div class="form-group">
+                            <label for="old-building-name">College's Old Building:</label>
+                            <input type="text" class="form-control" placeholder="Enter college's old building name" id="old-building-name" name="OldBuildingName">
+                        </div>
+                        <div class="form-group">
+                            <label for="new-college-name">College's New Name:</label>
+                            <input type="text" class="form-control" placeholder="Enter college's new name" id="new-college-name" name="NewCollegeName">
+                        </div>
+                        <div class="form-group">
+                            <label for="new-building-name">College's New Building:</label>
+                            <input type="text" class="form-control" placeholder="Enter college's new building name" id="new-building-name" name="NewBuildingName">
+                        </div>
+                        <input type="hidden" name="update" value="yes">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </form>
+                </div>
+
+                <div class="container p-3 my-3 border shadow-sm">
+                    <!-- Delete a college stored in the database -->
+                    <form action="lab9.php" method="post">
+                        <div class="form-group">
+                            <label for="delete-college-name">College's Name:</label>
+                            <input type="text" class="form-control" placeholder="Enter college's name" id="delete-college-name" name="CollegeName">
+                        </div>
+                        <input type="hidden" name="delete" value="yes">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+    
+            <!-- Student table column -->
+            <div class="col-sm-4">
+                <div class="container p-3 my-3 border shadow-sm">
+                    <form action="lab9.php" method="post">
+                        <div class="form-group">
+                            <label for="student-name">Student's Name:</label>
+                            <input type="text" class="form-control" placeholder="Enter student's name (First & Last)" id="student-name" name="Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="student-email">Student's Email:</label>
+                            <input type="text" class="form-control" placeholder="Enter student's email" id="student-email" name="Email">
+                        </div>
+                        <div class="form-group">
+                            <label for="student-college">Student's College (select one):</label>
+                            <select name="College" id="student-college" class="custom-select">
+                                <option selected>-</option>
+                                <?php 
+                                    // Pull colleges from COLLEGE table
+                                    $conn = new mysqli($hostname, $username, $password, $database);
+
+                                    // Verify that connection to instance was successful
+                                    if ($conn->connect_error) {
+                                        die("A Fatal Error Occurred");
+                                    }
+
+                                    // Write and execute SELECT query
+                                    $sql = "SELECT CollegeName FROM COLLEGE";
+                                    $result = $conn->query($sql);
+
+                                    // Run through the results in the table
+                                    if ($result->num_rows > 0) {
+                                        while($row = $result->fetch_assoc()) {
+                                            $College = $row["CollegeName"];
+                                            echo "<option value='$College'>" . $College . "</option>";
+                                        }
+                                    }
+
+                                    // Close connection once done pulling data
+                                    $conn->close()
+                                ?>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </form>
+                </div>
+
+                <div class="container p-3 my-3 border shadow-sm">
+                    <form action="lab9.php" method="post">
+                        <div class="form-group">
+                            <label for="update-student-id">Student's ID #:</label>
+                            <input type="text" class="form-control" placeholder="Enter student's ID #" id="update-student-id" name="StudentID">
+                        </div>
+                        <div class="form-group">
+                            <label for="update-student-name">Student's New Name:</label>
+                            <input type="text" class="form-control" placeholder="Enter student's new name" id="update-student-name" name="NewName">
+                        </div>
+                        <div class="form-group">
+                            <label for="update-student-email">Student's New Email:</label>
+                            <input type="text" class="form-control" placeholder="Enter student's new email" id="update-student-email" name="NewEmail">
+                        </div>
+                        <div class="form-group">
+                            <label for="update-student-college">Student's New College (select one):</label>
+                            <select name="NewCollege" id="update-student-college" class="custom-select">
+                                <option selected>-</option>
+                                <?php 
+                                    // Pull colleges from COLLEGE table
+                                    $conn = new mysqli($hostname, $username, $password, $database);
+
+                                    // Verify that connection to instance was successful
+                                    if ($conn->connect_error) {
+                                        die("A Fatal Error Occurred");
+                                    }
+
+                                    // Write and execute SELECT query
+                                    $sql = "SELECT CollegeName FROM COLLEGE";
+                                    $result = $conn->query($sql);
+
+                                    // Run through the results in the table
+                                    if ($result->num_rows > 0) {
+                                        while($row = $result->fetch_assoc()) {
+                                            $College = $row["CollegeName"];
+                                            echo "<option value='$College'>" . $College . "</option>";
+                                        }
+                                    }
+
+                                    // Close connection once done pulling data
+                                    $conn->close()
+                                ?>
+                            </select>
+                        </div>
+                        <input type="hidden" name="update" value="yes">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </form>
+                </div>
+
+                <div class="container p-3 my-3 border shadow-sm">
+                    <form action="lab9.php" method="post">
+                        <div class="form-group">
+                            <label for="delete-student-id">Student's ID #:</label>
+                            <input type="text" class="form-control" placeholder="Enter student's ID #" id="delete-student-id" name="StudentID">
+                        </div>
+                        <input type="hidden" name="delete" value="yes">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Course table column -->
+            <div class="col-sm-4">
+                <div class="container p-3 my-3 border shadow-sm"></div>
+                <div class="container p-3 my-3 border shadow-sm"></div>
+                <div class="container p-3 my-3 border shadow-sm"></div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
