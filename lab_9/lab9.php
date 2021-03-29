@@ -40,7 +40,7 @@
                 if (!$result) {
                     echo "Uh oh. INSERT transaction failed!";
                 } else {
-                    echo "Insert was successful";
+                    echo "<div class='alert alert-success alert-dismissible'><button type='button' class='close' data-dismiss='alert'>&times;</button><strong>Success!</strong> Insertion succeeded.</div>";
                 }
             }
 
@@ -61,7 +61,7 @@
                 if (!$result) {
                     echo "Uh oh. INSERT transaction failed!";
                 } else {
-                    echo "Insert was successful";
+                    echo "<div class='alert alert-success alert-dismissible'><button type='button' class='close' data-dismiss='alert'>&times;</button><strong>Success!</strong> Insertion succeeded.</div>";
                 }
             }
 
@@ -75,14 +75,14 @@
                 $College = get_post($conn, 'College');
 
                 // Write and execute query
-                $sql = "INSERT INTO COURSES (CourseName, Instruction, College) VALUES ('$CourseName', '$Instructor', '$College')";
+                $sql = "INSERT INTO COURSES (CourseName, Instructor, College) VALUES ('$CourseName', '$Instructor', '$College')";
                 $result = $conn->query($sql);
                 
                 // Check if insert was successful
                 if (!$result) {
                     echo "Uh oh. INSERT transaction failed!";
                 } else {
-                    echo "Insert was successful";
+                    echo "<div class='alert alert-success alert-dismissible'><button type='button' class='close' data-dismiss='alert'>&times;</button><strong>Success!</strong> Insertion succeeded.</div>";
                 }
             }
 
@@ -106,7 +106,7 @@
                 if (!$result) {
                     echo "Uh oh. Update transaction failed!";
                 } else {
-                    echo "Update was successful";
+                    echo "<div class='alert alert-success alert-dismissible'><button type='button' class='close' data-dismiss='alert'>&times;</button><strong>Success!</strong> Update succeeded.</div>";
                 }
             }
 
@@ -131,7 +131,7 @@
                 if (!$result) {
                     echo "Uh oh. Update transaction failed!";
                 } else {
-                    echo "Update was successful";
+                    echo "<div class='alert alert-success alert-dismissible'><button type='button' class='close' data-dismiss='alert'>&times;</button><strong>Success!</strong> Update succeeded.</div>";
                 }
             }
 
@@ -142,8 +142,8 @@
             !empty($_POST['NewInstructor']) &&
             !empty($_POST['NewCollege'])) {
                 // Set variables
-                $CouseID = get_post($conn, 'CourseID');
-                $CouseIDInt = intval($CourseID);
+                $CourseID = get_post($conn, 'CourseID');
+                $CourseIDInt = intval($CourseID);
                 $NewCourseName = get_post($conn, 'NewCourseName');
                 $NewInstructor = get_post($conn, 'NewInstructor');
                 $NewCollege = get_post($conn, 'NewCollege');
@@ -156,7 +156,7 @@
                 if (!$result) {
                     echo "Uh oh. Update transaction failed!";
                 } else {
-                    echo "Update was successful";
+                    echo "<div class='alert alert-success alert-dismissible'><button type='button' class='close' data-dismiss='alert'>&times;</button><strong>Success!</strong> Update succeeded.</div>";
                 }
             }
 
@@ -173,7 +173,7 @@
             if (!$result) {
                 echo "Uh oh. DELETE transaction failed!";
             } else {
-                echo "Deletion was successful";
+                echo "<div class='alert alert-success alert-dismissible'><button type='button' class='close' data-dismiss='alert'>&times;</button><strong>Success!</strong> Deletion succeeded.</div>";
             }
         }
 
@@ -191,9 +191,8 @@
             if (!$result) {
                 echo "Uh oh. DELETE transaction failed!";
             } else {
-                echo "Deletion was successful";
+                echo "<div class='alert alert-success alert-dismissible'><button type='button' class='close' data-dismiss='alert'>&times;</button><strong>Success!</strong> Deletion succeeded.</div>";
             }
-
         }
 
         if (isset($_POST['delete']) && isset($_POST['CourseID'])) {
@@ -201,6 +200,14 @@
             $CourseIDInt = intval($CourseID);
 
             $sql = "DELETE FROM COURSES WHERE CourseID=$CourseIDInt";
+            $result = $conn->query($sql);
+
+            // Check if deletion was successful
+            if (!$result) {
+                echo "Uh oh. DELETE transaction failed!";
+            } else {
+                echo "<div class='alert alert-success alert-dismissible'><button type='button' class='close' data-dismiss='alert'>&times;</button><strong>Success!</strong> Deletion succeeded.</div>";
+            }
         }
 
         // Close the connection to the database
@@ -498,7 +505,7 @@
                         <input type="hidden" name="update" value="yes">
                         <button type="submit" class="btn btn-primary">Update</button>
                     </form>
-                </div>
+                </div> 
 
                 <div class="container p-3 my-3 border shadow-sm">
                     <form action="lab9.php" method="post">
@@ -514,9 +521,109 @@
             
             <!-- Course table column -->
             <div class="col-sm-4">
-                <div class="container p-3 my-3 border shadow-sm"></div>
-                <div class="container p-3 my-3 border shadow-sm"></div>
-                <div class="container p-3 my-3 border shadow-sm"></div>
+                <div class="container p-3 my-3 border shadow-sm">
+                    <!-- Add new course to table -->
+                    <form action="lab9.php" method="post">
+                        <div class="form-group">
+                            <label for="course-name">Course Name:</label>
+                            <input type="text" class="form-control" placeholder="Enter Course Name" id="course-name" name="CourseName">
+                        </div>
+                        <div class="form-group">
+                            <label for="instructor-name">Instructor:</label>
+                            <input type="text" class="form-control" placeholder="Enter instructor's name" id="instructor-name" name="Instructor">
+                        </div>
+                        <div class="form-group">
+                            <label for="course-college">College Offering course (select one):</label>
+                            <select name="College" id="course-college" class="custom-select">
+                                <option selected>-</option>
+                                <?php 
+                                    // Pull colleges from COLLEGE table
+                                    $conn = new mysqli($hostname, $username, $password, $database);
+
+                                    // Verify that connection to instance was successful
+                                    if ($conn->connect_error) {
+                                        die("A Fatal Error Occurred");
+                                    }
+
+                                    // Write and execute SELECT query
+                                    $sql = "SELECT CollegeName FROM COLLEGE";
+                                    $result = $conn->query($sql);
+
+                                    // Run through the results in the table
+                                    if ($result->num_rows > 0) {
+                                        while($row = $result->fetch_assoc()) {
+                                            $College = $row["CollegeName"];
+                                            echo "<option value='$College'>" . $College . "</option>";
+                                        }
+                                    }
+
+                                    // Close connection once done pulling data
+                                    $conn->close()
+                                ?>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </form>
+                </div>
+                <div class="container p-3 my-3 border shadow-sm">
+                    <form action="lab9.php" method="post">
+                        <div class="form-group">
+                            <label for="update-course-id">Course's ID #:</label>
+                            <input type="text" class="form-control" placeholder="Enter Course's ID #" id="update-course-id" name="CourseID">
+                        </div>
+                        <div class="form-group">
+                            <label for="update-course-name">Course's New Name:</label>
+                            <input type="text" class="form-control" placeholder="Enter course's new name" id="update-student-name" name="NewCourseName">
+                        </div>
+                        <div class="form-group">
+                            <label for="update-instructor">Course's New Instructor:</label>
+                            <input type="text" class="form-control" placeholder="Enter course's new instructor" id="update-instructor" name="NewInstructor">
+                        </div>
+                        <div class="form-group">
+                            <label for="update-course-college">Course's New College (select one):</label>
+                            <select name="NewCollege" id="update-course-college" class="custom-select">
+                                <option selected>-</option>
+                                <?php 
+                                    // Pull colleges from COLLEGE table
+                                    $conn = new mysqli($hostname, $username, $password, $database);
+
+                                    // Verify that connection to instance was successful
+                                    if ($conn->connect_error) {
+                                        die("A Fatal Error Occurred");
+                                    }
+
+                                    // Write and execute SELECT query
+                                    $sql = "SELECT CollegeName FROM COLLEGE";
+                                    $result = $conn->query($sql);
+
+                                    // Run through the results in the table
+                                    if ($result->num_rows > 0) {
+                                        while($row = $result->fetch_assoc()) {
+                                            $College = $row["CollegeName"];
+                                            echo "<option value='$College'>" . $College . "</option>";
+                                        }
+                                    }
+
+                                    // Close connection once done pulling data
+                                    $conn->close()
+                                ?>
+                            </select>
+                        </div>
+                        <input type="hidden" name="update" value="yes">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </form>
+                </div>
+                    
+                <div class="container p-3 my-3 border shadow-sm">
+                    <form action="lab9.php" method="post">
+                        <div class="form-group">
+                            <label for="delete-course-id">Course's ID #:</label>
+                            <input type="text" class="form-control" placeholder="Enter course's ID #" id="delete-course-id" name="CourseID">
+                        </div>
+                        <input type="hidden" name="delete" value="yes">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
