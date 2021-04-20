@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 12 Challenge</title>
+    <link href="favicon.ico" rel="icon" type="image/x-icon">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+</head>
+<body>
+    <div class="w3-container">
+        <h1 class="w3-center w3-animate-top">Welcome to the coin toss JavaScript edition!</h1>
+    </div>
+
+    <div class="w3-container w3-center">
+        <script type="text/javascript">
+            // Function to generate a random number between 1 and 0
+            function randomInt(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+
+            // Run while loop until heads or tails in achieved
+            headsortails = false;
+            while (headsortails != true) {
+                // Generate random number
+                var ran = randomInt(0, 1);
+
+                // Switch-case to determine heads or tails
+                switch (ran) {
+                    case 0:
+                        headsortails = false;
+                        document.write("<p><span class='w3-red w3-padding w3-animate-left'>The coin landed on heads!</span></p><br>");
+                        break;
+
+                    case 1:
+                        headsortails = true;
+                        document.write("<p><span class='w3-green w3-padding w3-animate-right'>The coin landed on tails!</span></p><br>");
+                        break;
+
+                    default:
+                        document.write("Congrats! You some how reached an unreachable case! I'm impressed")
+                }
+            }
+        </script>
+    </div>
+</body>
+</html>
